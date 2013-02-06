@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core"
+  pageTitle="testing evens">
+
+	<xp:this.resources>
+		<xp:script clientSide="true"><![CDATA[
+		/* nice helper function, could go into CSJS library, but this is faster (during debug) */
+	var executeOnServer = function () {
+	/* executeOnServer 
+		param1: ID of event to call on server e.g. "myEvent1"
+		param2: ID of xp element to partial refresh, or @none e.g. (note not space between # and { )  "# {id:refreshMe}" or "@none"
+		param3: Data to send to server, e.g. "MyPassThru value"
+		param4: {
+    onStart: function() { alert('starting!'); },
+    onComplete: function() { alert('complete!'); },
+    onError: function() { alert('DANGER WILL ROBINSON!'); }
+}
+	*/
+    // must supply event handler id or we're outta here....
+    if (!arguments[0])
+        return false;
+    // the ID of the event handler we want to execute
+    var functionName = arguments[0];
+
+    // OPTIONAL - The Client Side ID that you want to partial refresh after executing the event handler
+    var refreshId = (arguments[1]) ? arguments[1] : "@none";
+    var form = (arguments[1]) ? XSP.findForm(arguments[1]) : dojo.query('form')[0];
+
+    // OPTIONAL - Options object contianing onStart, onComplete and onError functions for the call to the 
+    // handler and subsequent partial refresh
+    var options = (arguments[3]) ? arguments[3] : {};
+
+    // Set the ID in $$xspsubmitid of the event handler to execute
+    dojo.query('[name="$$xspsubmitid"]')[0].value = form.id + ':' + functionName;
+    dojo.query('[name="$$xspsubmitvalue"]')[0].value = (arguments[2]) ? arguments[2] : "";;
+    
+    XSP._partialRefresh("post", form, refreshId, options);
+}		
+		]]></xp:script>
+		
+	</xp:this.resources>
+	<xp:this.afterRestoreView><![CDATA[#{javascript:
+	/* Event runs during Partial refresh on the server */
+//print('After restore view');}
+]]></xp:this.afterRestoreView>
+	
+	<xp:panel id="startid">Test code om een complete round-trip te krijgen naar de server met eigen data!</xp:panel>
+	<xp:br></xp:br>
+	
+	<xp:button value="test custom event" id="button2">
+		<xp:eventHandler event="onclick" submit="false">
+			<xp:this.script><![CDATA[
+//alert("onclick executeOnServer");
+executeOnServer('eventhandler1a', '#{id:refreshMe}', JSON.stringify({'test':'value'}), {
+    onStart: function() {  },
+    onComplete: function( data ) { alert('complete!'); },
+    onError: function() { alert('DANGER WILL ROBINSON!'); }
+});
+
+/*
+executeOnServer('eventhandler1a', '@none', JSON.stringify({'test':'value'}), {
+    onStart: function() {  },
+    onComplete: function( data ) { alert('complete!'); },
+    onError: function() { alert('DANGER WILL ROBINSON!'); }
+});
+*/
+]]></xp:this.script>
+		</xp:eventHandler>
+	</xp:button>
+
+	<xp:br></xp:br>
+	
+	<xp:panel id="refreshMe">Just a panel so we can refresh something!</xp:panel>
+	
+		<xp:eventHandler event="onevent" id="eventhandler1a" submit="false" >
+			<xp:this.action><![CDATA[#{javascript:
+
+var mySubmittedVal = context.getSubmittedValue();	
+var jsObj = fromJson( mySubmittedVal);
+print('values test=' + jsObj.test);
+
+/* var map = facesContext.getExternalContext().getRequestParameterMap(); 
+var values = map.get('$$xspsubmitvalue'); 
+*/
+
+/* postscript code will only run if we actualy partial refresh a pane! */
+view.postScript("alert('done on server value was test=" + jsObj.test +" ');");
+return true;
+}]]></xp:this.action>
+		</xp:eventHandler>
+</xp:view>
