@@ -1,4 +1,4 @@
-<!-- part 1: the RPC service -->
+<!-- part 1: the RPC service: Media.Refresh(MediaID) -->
 <xe:jsonRpcService id="jsonRpcService1" serviceName="Media">
 		<xe:this.methods>
 			<xe:remoteMethod name="Refresh">
