@@ -1,4 +1,6 @@
 XPages
 ======
 
-XPages toolkit
+XPages snippits
+- XPage roundtrip
+- XPage RPC
