@@ -1,3 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core"
+xmlns:xe="http://www.ibm.com/xsp/coreex">
 <!-- part 1: the RPC service: Media.Refresh(MediaID) -->
 <xe:jsonRpcService id="jsonRpcService1" serviceName="Media">
 		<xe:this.methods>
@@ -6,7 +9,8 @@
 					<xe:remoteMethodArg name="MediaID" type="string"></xe:remoteMethodArg>
 				</xe:this.arguments>
 				<xe:this.script><![CDATA[
-				print("RPC on server");
+				print("RPC on server" + MediaID);
+				MediaID="456";
 				return MediaID+"server";
 				]]></xe:this.script>
 			</xe:remoteMethod>
@@ -18,7 +22,9 @@
 		<xp:eventHandler event="onclick" submit="false">
 			<xp:this.script><![CDATA[
 			alert("RPC calling Media from client");
-Media.Refresh("ID123").addCallback( function(result){
-	alert("Back on client""+ result);
-});]]></xp:this.script>
+			Media.Refresh("ID123").addCallback( function(result){
+			alert("Back on client"+ result);
+});
+]]></xp:this.script>
 		</xp:eventHandler></xp:button>
+</xp:view>
